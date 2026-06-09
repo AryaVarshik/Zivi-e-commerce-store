@@ -36,3 +36,6 @@ Thumbs.db
 # Archives / misc
 *.zip
 *.tar.gz
+
+# Accidental nested clone (not part of this project)
+code_alpha-task-1_Zivi-e-commerce-store/
