@@ -1,0 +1,190 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Zivi | My Account{% endblock %}
+
+{% block content %}
+<section class="section-padding">
+    <div class="container">
+        
+        <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 2.5rem;"><i class="fa fa-user" style="color: var(--primary-color);"></i> My Account Dashboard</h1>
+
+        <div class="settings-grid">
+            
+            <!-- Left Side Menu tabs -->
+            <div class="settings-menu">
+                <a href="#details" class="settings-menu-item active" id="profile-tab-details" onclick="switchProfileTab('details')">
+                     <i class="fa-solid fa-address-card"></i> Profile Details
+                </a>
+                <a href="#orders" class="settings-menu-item" id="profile-tab-orders" onclick="switchProfileTab('orders')">
+                     <i class="fa-solid fa-box-open"></i> Order History
+                </a>
+                <a href="{% url 'wishlist' %}" class="settings-menu-item">
+                     <i class="fa-solid fa-heart"></i> My Wishlist
+                </a>
+                <a href="{% url 'settings' %}" class="settings-menu-item">
+                     <i class="fa-solid fa-cog"></i> Settings
+                </a>
+            </div>
+
+            <!-- Right Side Panels -->
+            <div>
+                <!-- Panel 1: Profile Details Form -->
+                <div class="payment-content active" id="panel-details" style="display: block;">
+                    <div class="form-card" style="margin-bottom: 0;">
+                        <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--primary-color); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+                             Edit Account Details
+                        </h2>
+                        
+                        <form action="{% url 'profile' %}" method="POST">
+                            {% csrf_token %}
+                            
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label for="first_name">First Name</label>
+                                    <input type="text" name="first_name" id="first_name" class="form-control" placeholder="First Name" value="{{ request.user.first_name }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="last_name">Last Name</label>
+                                    <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Last Name" value="{{ request.user.last_name }}">
+                                </div>
+                            </div>
+                            
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label for="email">Email Address *</label>
+                                    <input type="email" name="email" id="email" class="form-control" placeholder="email@example.com" value="{{ request.user.email }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">Phone Number</label>
+                                    <input type="tel" name="phone" id="phone" class="form-control" placeholder="123-456-7890" value="{{ profile.phone }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="address">Street Address</label>
+                                <input type="text" name="address" id="address" class="form-control" placeholder="123 Main St, Apt 4B" value="{{ profile.address|default:'' }}">
+                            </div>
+
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label for="city">City</label>
+                                    <input type="text" name="city" id="city" class="form-control" placeholder="New York" value="{{ profile.city|default:'' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="zip_code">Zip Code</label>
+                                    <input type="text" name="zip_code" id="zip_code" class="form-control" placeholder="10001" value="{{ profile.zip_code|default:'' }}">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="margin-top: 1rem;"><i class="fa fa-save"></i> Save Profile Details</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Panel 2: Order History -->
+                <div class="payment-content" id="panel-orders" style="display: none;">
+                    <div class="form-card" style="margin-bottom: 0;">
+                        <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--primary-color); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+                             My Previous Orders
+                        </h2>
+                        
+                        {% if orders %}
+                            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                                {% for order in orders %}
+                                    <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); overflow: hidden; background-color: var(--bg-secondary);">
+                                        <!-- Order details header block -->
+                                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color); background-color: var(--bg-card); font-size: 0.85rem; flex-wrap: wrap; gap: 0.75rem;">
+                                            <div>
+                                                <span style="color: var(--text-secondary); text-transform: uppercase; font-weight: 700; display: block; font-size: 0.75rem;">Order Placed</span>
+                                                <strong style="color: var(--text-color);">{{ order.created_at|date:"M d, Y" }}</strong>
+                                            </div>
+                                            <div>
+                                                <span style="color: var(--text-secondary); text-transform: uppercase; font-weight: 700; display: block; font-size: 0.75rem;">Total Amount</span>
+                                                <strong style="color: var(--text-color);">${{ order.total_amount }}</strong>
+                                            </div>
+                                            <div>
+                                                <span style="color: var(--text-secondary); text-transform: uppercase; font-weight: 700; display: block; font-size: 0.75rem;">Status</span>
+                                                {% if order.status == 'Delivered' %}
+                                                    <span class="badge" style="background-color: var(--success); color: white;">{{ order.status }}</span>
+                                                {% elif order.status == 'Pending' %}
+                                                    <span class="badge" style="background-color: var(--warning); color: white;">{{ order.status }}</span>
+                                                {% elif order.status == 'Cancelled' %}
+                                                    <span class="badge" style="background-color: var(--danger); color: white;">{{ order.status }}</span>
+                                                {% else %}
+                                                    <span class="badge" style="background-color: var(--info); color: white;">{{ order.status }}</span>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <span style="color: var(--text-secondary); text-transform: uppercase; font-weight: 700; display: block; font-size: 0.75rem;">Order ID</span>
+                                                <strong style="color: var(--primary-color);">{{ order.order_id }}</strong>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Items list inside order -->
+                                        <div style="padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;">
+                                            {% for item in order.items.all %}
+                                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                                    <div style="display: flex; gap: 1rem; align-items: center;">
+                                                        <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background-color: var(--bg-card);">
+                                                        <div>
+                                                            <h4 style="font-weight: 700; font-size: 0.9rem;">{{ item.product.name }}</h4>
+                                                            <span style="font-size: 0.8rem; color: var(--text-secondary);">Quantity: {{ item.quantity }} &middot; Price: ${{ item.price }}</span>
+                                                        </div>
+                                                    </div>
+                                                    <a href="{% url 'product_detail' item.product.slug %}" class="btn btn-secondary btn-sm" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">Buy Again</a>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div style="text-align: center; padding: 4rem 2rem;">
+                                 <i class="fa fa-box-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                                 <p style="color: var(--text-secondary);">You haven't placed any orders yet.</p>
+                                 <a href="{% url 'home' %}" class="btn btn-primary btn-sm" style="margin-top: 1.5rem;">Start Shopping</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<!-- Script for tab toggling -->
+<script>
+    function switchProfileTab(tab) {
+        // Toggle tab highlights
+        const detailsTab = document.getElementById('profile-tab-details');
+        const ordersTab = document.getElementById('profile-tab-orders');
+        
+        // Toggle panels
+        const detailsPanel = document.getElementById('panel-details');
+        const ordersPanel = document.getElementById('panel-orders');
+
+        if (tab === 'orders') {
+            detailsTab.classList.remove('active');
+            ordersTab.classList.add('active');
+            detailsPanel.style.display = 'none';
+            ordersPanel.style.display = 'block';
+        } else {
+            ordersTab.classList.remove('active');
+            detailsTab.classList.add('active');
+            ordersPanel.style.display = 'none';
+            detailsPanel.style.display = 'block';
+        }
+    }
+
+    // Auto-select tab if hash in URL is present
+    document.addEventListener("DOMContentLoaded", function() {
+        if (window.location.hash === '#orders') {
+            switchProfileTab('orders');
+        }
+    });
+</script>
+{% endblock %}

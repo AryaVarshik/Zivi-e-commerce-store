@@ -1,0 +1,525 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Zivi | Premium E-Commerce Platform{% endblock %}
+
+{% block content %}
+
+<!-- 1. HERO BANNER CAROUSEL (10 SLIDES) -->
+<section class="hero-slider-container">
+    <div class="hero-slider" id="hero-slider">
+        
+        <!-- Slide 1: Flash Sale with illustration & 2 Featured Products -->
+        <div class="slide" style="background-color: var(--primary-light);">
+            <div class="container slide-content">
+                <div class="slide-text">
+                    <span class="badge badge-sale" style="margin-bottom: 1rem;">Limited Offer</span>
+                    <h2 style="color: var(--primary-color);">Flash Sale Available Here!</h2>
+                    <p>Get up to 50% off on top-tier items. Shop before the countdown runs out!</p>
+                    
+                    <!-- 2 Featured products in banner -->
+                    <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                        {% for prod in featured_products|slice:":2" %}
+                        <div style="background: var(--bg-card); border-radius: var(--radius-sm); padding: 0.75rem; display: flex; align-items: center; gap: 0.75rem; width: 220px; box-shadow: var(--shadow-sm);">
+                            <img src="{{ prod.image_url }}" alt="{{ prod.name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: var(--radius-sm);">
+                            <div style="font-size: 0.8rem; overflow: hidden;">
+                                <h4 style="font-weight: 700; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; margin-bottom: 0.2rem;">{{ prod.name }}</h4>
+                                <span style="color: var(--primary-color); font-weight: 700;">${{ prod.final_price }}</span>
+                                {% if prod.is_discounted %}
+                                    <span style="text-decoration: line-through; font-size: 0.7rem; color: var(--text-secondary); margin-left: 0.25rem;">${{ prod.price }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <a href="{% url 'flash_sale' %}" class="btn btn-primary">Shop Flash Sale <i class="fa fa-arrow-right"></i></a>
+                </div>
+                
+                <div class="flash-sale-illustration">
+                    <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&auto=format&fit=crop" class="illustration-img" alt="Promotional Model">
+                    <div class="expression-tag tag-1">HURRY UP! 🔥</div>
+                    <div class="expression-tag tag-2">UP TO 50% OFF 🌟</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Fashion Category Focus (Single Product Focus) -->
+        {% with prod=banner_products.0 %}
+        <div class="slide" style="background-color: #F8F9FA;">
+            <div class="container slide-content">
+                <div class="slide-text">
+                    <span class="badge" style="background-color: var(--secondary-color); color: white; margin-bottom: 1rem;">Trending In Fashion</span>
+                    <h2>{{ prod.name }}</h2>
+                    <p>{{ prod.description|truncatewords:20 }}</p>
+                    <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary-color); margin-bottom: 1.5rem;">
+                        ${{ prod.final_price }} 
+                        {% if prod.is_discounted %}
+                            <span style="text-decoration: line-through; font-size: 1rem; color: var(--text-secondary); margin-left: 0.5rem;">${{ prod.price }}</span>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'product_detail' prod.slug %}" class="btn btn-primary">View Product Details</a>
+                </div>
+                <div class="flex-center">
+                    <img src="{{ prod.image_url }}" alt="{{ prod.name }}" style="max-height: 400px; object-fit: contain; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);">
+                </div>
+            </div>
+        </div>
+        {% endwith %}
+
+        <!-- Slide 3: Sports Focus (4-Grid Layout) -->
+        <div class="slide" style="background-color: #FFF8F0;">
+            <div class="container slide-content">
+                <div class="slide-text">
+                    <span class="badge badge-sale" style="margin-bottom: 1rem;">Athletic Gear</span>
+                    <h2>Gear Up For Sports</h2>
+                    <p>Premium sports gear, apparel, and active footwear. Unleash your limits today.</p>
+                    <a href="?category=sports" class="btn btn-outline">Explore Sports</a>
+                </div>
+                <div class="slide-grid-4">
+                    {% for prod in banner_products|slice:"1:5" %}
+                    <div class="slide-promo-card">
+                        <img src="{{ prod.image_url }}" alt="{{ prod.name }}">
+                        <div>
+                            <h4>{{ prod.name }}</h4>
+                            <span class="price">${{ prod.final_price }}</span>
+                        </div>
+                        <a href="{% url 'product_detail' prod.slug %}" class="btn btn-secondary btn-sm" style="margin-top: 0.5rem; padding: 0.35rem;">Shop Now</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Men Focus (2-Product Layout) -->
+        <div class="slide" style="background-color: #F7FAFC;">
+            <div class="container slide-content">
+                <div class="slide-text">
+                    <span class="badge" style="background-color: #2B6CB0; color: white; margin-bottom: 1rem;">Men's Collection</span>
+                    <h2>Modern Styles for Men</h2>
+                    <p>Upgrade your wardrobe with our classic blazers, linen shirts, and custom boots.</p>
+                    <a href="?category=men" class="btn btn-primary">Browse Men's Fashion</a>
+                </div>
+                <div class="slide-grid-2">
+                    {% for prod in banner_products|slice:"3:5" %}
+                    <div class="slide-promo-card" style="padding: 1.5rem;">
+                        <img src="{{ prod.image_url }}" alt="{{ prod.name }}" style="height: 160px;">
+                        <div>
+                            <h4 style="font-size: 1rem; margin-bottom: 0.5rem;">{{ prod.name }}</h4>
+                            <span class="price" style="font-size: 1.1rem;">${{ prod.final_price }}</span>
+                        </div>
+                        <a href="{% url 'product_detail' prod.slug %}" class="btn btn-secondary btn-sm" style="margin-top: 1rem;">View Details</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Girls Focus (Single Product Focus) -->
+        {% with prod=banner_products.10 %}
+        <div class="slide" style="background-color: #FFF5F7;">
+            <div class="container slide-content">
+                <div class="slide-text">
+                    <span class="badge" style="background-color: #D53F8C; color: white; margin-bottom: 1rem;">Girls Fashion</span>
+                    <h2>{{ prod.name }}</h2>
+                    <p>{{ prod.description|truncatewords:20 }}</p>
+                    <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary-color); margin-bottom: 1.5rem;">
+                        ${{ prod.final_price }} 
+                        {% if prod.is_discounted %}
+                            <span style="text-decoration: line-through; font-size: 1rem; color: var(--text-secondary); margin-left: 0.5rem;">${{ prod.price }}</span>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'product_detail' prod.slug %}" class="btn btn-primary">Shop Girls Fashion</a>
+                </div>
+                <div class="flex-center">
+                    <img src="{{ prod.image_url }}" alt="{{ prod.name }}" style="max-height: 400px; object-fit: contain; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);">
+                </div>
+            </div>
+        </div>
+        {% endwith %}
+
+        <!-- Slide 6: Toys & Children Focus (6-Grid Layout) -->
+        <div class="slide" style="background-color: #F0FFF4;">
+            <div class="container slide-content">
+                <div class="slide-text">
+                    <span class="badge" style="background-color: #38A169; color: white; margin-bottom: 1rem;">Toys & Kids</span>
+                    <h2>Infinite Joy & Fun Playtime</h2>
+                    <p>Interactive train sets, Legos, soft teddies, and kids wear. Fully tested for safety and happiness.</p>
+                    <a href="?category=toys" class="btn btn-outline">Explore Toys</a>
+                </div>
+                <div class="slide-grid-6">
+                    {% for prod in banner_products|slice:"11:17" %}
+                    <div class="slide-promo-card" style="padding: 0.5rem;">
+                        <img src="{{ prod.image_url }}" alt="{{ prod.name }}" style="height: 70px;">
+                        <h4 style="font-size: 0.75rem;">{{ prod.name }}</h4>
+                        <span class="price" style="font-size: 0.8rem;">${{ prod.final_price }}</span>
+                        <a href="{% url 'product_detail' prod.slug %}" style="font-size: 0.7rem; color: var(--primary-color); font-weight: 700; margin-top: 0.25rem;">View</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Electronics Focus (Single Product Focus) -->
+        {% with prod=banner_products.19 %}
+        <div class="slide" style="background-color: #EDF2F7;">
+            <div class="container slide-content">
+                <div class="slide-text">
+                    <span class="badge" style="background-color: #4A5568; color: white; margin-bottom: 1rem;">Gadgets & Tech</span>
+                    <h2>{{ prod.name }}</h2>
+                    <p>{{ prod.description|truncatewords:20 }}</p>
+                    <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary-color); margin-bottom: 1.5rem;">
+                        ${{ prod.final_price }} 
+                        {% if prod.is_discounted %}
+                            <span style="text-decoration: line-through; font-size: 1rem; color: var(--text-secondary); margin-left: 0.5rem;">${{ prod.price }}</span>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'product_detail' prod.slug %}" class="btn btn-primary">Upgrade Tech</a>
+                </div>
+                <div class="flex-center">
+                    <img src="{{ prod.image_url }}" alt="{{ prod.name }}" style="max-height: 400px; object-fit: contain; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);">
+                </div>
+            </div>
+        </div>
+        {% endwith %}
+
+        <!-- Slide 8: Home Category Focus (4-Grid Layout) -->
+        <div class="slide" style="background-color: #FAF5FF;">
+            <div class="container slide-content">
+                <div class="slide-text">
+                    <span class="badge" style="background-color: #805AD5; color: white; margin-bottom: 1rem;">Home Decor</span>
+                    <h2>Aesthetic Comfort for Home</h2>
+                    <p>Beautiful wood lounge chairs, soy candles, and minimalist flower vases.</p>
+                    <a href="?category=home" class="btn btn-outline">Shop Home Collection</a>
+                </div>
+                <div class="slide-grid-4">
+                    {% for prod in banner_products|slice:"16:20" %}
+                    <div class="slide-promo-card">
+                        <img src="{{ prod.image_url }}" alt="{{ prod.name }}">
+                        <div>
+                            <h4>{{ prod.name }}</h4>
+                            <span class="price">${{ prod.final_price }}</span>
+                        </div>
+                        <a href="{% url 'product_detail' prod.slug %}" class="btn btn-secondary btn-sm" style="margin-top: 0.5rem; padding: 0.35rem;">View</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Beauty & Accessories Focus (6-Grid Layout) -->
+        <div class="slide" style="background-color: #EBF8FF;">
+            <div class="container slide-content">
+                <div class="slide-text">
+                    <span class="badge" style="background-color: #3182CE; color: white; margin-bottom: 1rem;">Self Care & Accent</span>
+                    <h2>Radiant Beauty & Accessories</h2>
+                    <p>Refresh your skin care routines and style up with sunglasses and wristwatches.</p>
+                    <a href="?category=beauty" class="btn btn-primary">Shop Beauty</a>
+                </div>
+                <div class="slide-grid-6">
+                    {% for prod in banner_products|slice:"24:30" %}
+                    <div class="slide-promo-card" style="padding: 0.5rem;">
+                        <img src="{{ prod.image_url }}" alt="{{ prod.name }}" style="height: 70px;">
+                        <h4 style="font-size: 0.75rem;">{{ prod.name }}</h4>
+                        <span class="price" style="font-size: 0.8rem;">${{ prod.final_price }}</span>
+                        <a href="{% url 'product_detail' prod.slug %}" style="font-size: 0.7rem; color: var(--primary-color); font-weight: 700; margin-top: 0.25rem;">View</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Gifts Focus (10-Product Mini Layout) -->
+        <div class="slide" style="background-color: #FFF5F5;">
+            <div class="container slide-content">
+                <div class="slide-text">
+                    <span class="badge" style="background-color: #E53E3E; color: white; margin-bottom: 1rem;">Gifts Hub</span>
+                    <h2>Spread Love & Joy</h2>
+                    <p>Chocolate gift packs, keychain accessories, bath sets. Make them feel special.</p>
+                    <a href="?category=gifts" class="btn btn-outline">Explore Gifts</a>
+                </div>
+                <div class="slide-grid-10">
+                    {% for prod in banner_products|slice:"22:32" %}
+                    <div class="slide-promo-card" style="padding: 0.25rem;">
+                        <img src="{{ prod.image_url }}" alt="{{ prod.name }}" style="height: 40px; margin-bottom: 0.2rem;">
+                        <h4 style="font-size: 0.65rem;">{{ prod.name }}</h4>
+                        <span class="price" style="font-size: 0.7rem;">${{ prod.final_price }}</span>
+                        <a href="{% url 'product_detail' prod.slug %}" style="font-size: 0.6rem; color: var(--primary-color); font-weight: 700;">View</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Slide Manual Controls -->
+    <button class="slider-arrow slider-arrow-prev" id="slider-prev-btn"><i class="fa fa-chevron-left"></i></button>
+    <button class="slider-arrow slider-arrow-next" id="slider-next-btn"><i class="fa fa-chevron-right"></i></button>
+    
+    <!-- Dots Indicators -->
+    <div class="slider-dots" id="slider-dots">
+         <!-- generated by JS -->
+    </div>
+</section>
+
+<!-- 2. SCROLLABLE CATEGORIES GRID -->
+<section class="section-padding" style="background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color);">
+    <div class="container">
+        <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; text-align: center; text-transform: uppercase; letter-spacing: 0.5px;">Shop By Category</h2>
+        <div class="category-scroll-container">
+            <!-- All categories link button -->
+            <a href="{% url 'home' %}" class="category-card {% if not selected_category %}active{% endif %}">
+                <div class="category-icon"><i class="fa fa-th-large"></i></div>
+                <span>All Products</span>
+            </a>
+            {% for cat in categories %}
+            <a href="?category={{ cat.slug }}" class="category-card {% if selected_category == cat.slug %}active{% endif %}">
+                <div class="category-icon"><i class="fa {{ cat.icon_class|default:'fa-shopping-cart' }}"></i></div>
+                <span>{{ cat.name }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- 3. PRODUCT LIST SECTION WITH SIDEBAR FILTER PANEL -->
+<section class="section-padding">
+    <div class="container">
+        <div class="product-section-header">
+            <div>
+                <h2 style="font-size: 1.8rem; font-weight: 800;">Our Products Catalog</h2>
+                <p style="color: var(--text-secondary);">Browse through all items. Use filters to narrow down your choice.</p>
+            </div>
+            
+            {% if selected_category or selected_brand or price_min or price_max or selected_rating or selected_discount or selected_availability or search_query %}
+                <a href="{% url 'home' %}" class="btn btn-secondary btn-sm" style="color: var(--danger);"><i class="fa fa-filter-circle-xmark"></i> Clear Filters</a>
+            {% endif %}
+        </div>
+
+        <div class="store-layout">
+            
+            <!-- Sidebar Filter Panel -->
+            <aside class="filter-sidebar">
+                <form action="{% url 'home' %}" method="GET" id="filter-form">
+                    <!-- Maintain search query and category if exists -->
+                    {% if search_query %}
+                        <input type="hidden" name="q" value="{{ search_query }}">
+                    {% endif %}
+                    {% if selected_category %}
+                        <input type="hidden" name="category" value="{{ selected_category }}">
+                    {% endif %}
+
+                    <!-- Category filter (if not selected) -->
+                    {% if not selected_category %}
+                    <div class="filter-group">
+                        <h4 class="filter-title">Category</h4>
+                        <div class="filter-checkbox-list">
+                            {% for cat in categories %}
+                            <label class="filter-checkbox-label">
+                                <input type="radio" name="category" value="{{ cat.slug }}" onchange="this.form.submit()">
+                                <span>{{ cat.name }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Price Range -->
+                    <div class="filter-group">
+                        <h4 class="filter-title">Price Range</h4>
+                        <div class="price-range-inputs">
+                            <input type="number" name="price_min" placeholder="Min" value="{{ price_min|default:'' }}">
+                            <span style="color: var(--text-secondary);">&ndash;</span>
+                            <input type="number" name="price_max" placeholder="Max" value="{{ price_max|default:'' }}">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm" style="width: 100%; margin-top: 0.75rem;">Apply Price</button>
+                    </div>
+
+                    <!-- Brand -->
+                    <div class="filter-group">
+                        <h4 class="filter-title">Brand</h4>
+                        <div class="filter-checkbox-list">
+                            {% for brand in brands %}
+                            <label class="filter-checkbox-label">
+                                <input type="radio" name="brand" value="{{ brand.slug }}" {% if selected_brand == brand.slug %}checked{% endif %} onchange="this.form.submit()">
+                                <span>{{ brand.name }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Rating stars -->
+                    <div class="filter-group">
+                        <h4 class="filter-title">Rating</h4>
+                        <div class="filter-checkbox-list">
+                            {% for stars in "5432" %}
+                            <label class="filter-checkbox-label">
+                                <input type="radio" name="rating" value="{{ stars }}" {% if selected_rating == stars %}checked{% endif %} onchange="this.form.submit()">
+                                <span class="rating-filter-row">
+                                    {{ stars }}+ <i class="fa fa-star"></i>
+                                </span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Discount -->
+                    <div class="filter-group">
+                        <h4 class="filter-title">Special Offers</h4>
+                        <label class="filter-checkbox-label">
+                            <input type="checkbox" name="discount" value="true" {% if selected_discount == 'true' %}checked{% endif %} onchange="this.form.submit()">
+                            <span>Discounted Items Only</span>
+                        </label>
+                    </div>
+
+                    <!-- Availability -->
+                    <div class="filter-group">
+                        <h4 class="filter-title">Availability</h4>
+                        <div class="filter-checkbox-list">
+                            <label class="filter-checkbox-label">
+                                <input type="radio" name="availability" value="in_stock" {% if selected_availability == 'in_stock' %}checked{% endif %} onchange="this.form.submit()">
+                                <span>In Stock Only</span>
+                            </label>
+                            <label class="filter-checkbox-label">
+                                <input type="radio" name="availability" value="out_of_stock" {% if selected_availability == 'out_of_stock' %}checked{% endif %} onchange="this.form.submit()">
+                                <span>Out of Stock</span>
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </aside>
+
+            <!-- Product Display Grid -->
+            <div style="width: 100%;">
+                {% if products %}
+                    <div class="product-grid">
+                        {% for prod in products %}
+                            <div class="product-card" onclick="window.location.href='{% url 'product_detail' prod.slug %}'" style="cursor: pointer;">
+                                <div class="product-image-container">
+                                    <img src="{{ prod.image_url }}" alt="{{ prod.name }}">
+                                    
+                                    <div class="product-badge-container">
+                                        {% if prod.is_discounted %}
+                                            <span class="badge badge-sale">-{{ prod.discount_percentage }}%</span>
+                                        {% endif %}
+                                        {% if prod.is_flash_sale %}
+                                             <span class="badge" style="background-color: var(--secondary-color); color: white;">Flash Sale</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <button class="product-wishlist-btn {% if prod.id in wishlisted_ids %}active{% endif %}" onclick="event.stopPropagation(); toggleWishlist('{{ prod.id }}', this)" title="Add to Wishlist">
+                                        <i class="fa-solid fa-heart"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="product-info">
+                                    <span class="product-cat">{{ prod.category.name }}</span>
+                                    <h3 class="product-title"><a href="{% url 'product_detail' prod.slug %}" onclick="event.stopPropagation();">{{ prod.name }}</a></h3>
+                                    
+                                    <div class="product-rating">
+                                        {% for i in prod.rating_stars_full %}<i class="fa fa-star"></i>{% endfor %}
+                                        {% if prod.rating_stars_half %}<i class="fa fa-star-half-alt"></i>{% endif %}
+                                        {% for i in prod.rating_stars_empty %}<i class="fa-regular fa-star"></i>{% endfor %}
+                                        <span>({{ prod.rating }})</span>
+                                    </div>
+                                    
+                                    <p class="product-desc">{{ prod.description }}</p>
+                                    
+                                    <div class="product-price-row">
+                                        {% if prod.is_discounted %}
+                                            <span class="product-price discounted">${{ prod.discount_price }}</span>
+                                            <span class="product-old-price">${{ prod.price }}</span>
+                                        {% else %}
+                                            <span class="product-price">${{ prod.price }}</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="product-actions">
+                                        <button class="btn btn-secondary btn-sm {% if prod.id in wishlisted_ids %}active{% endif %}" onclick="event.stopPropagation(); toggleWishlist('{{ prod.id }}', this)" title="Wishlist">
+                                            <i class="fa{% if prod.id in wishlisted_ids %}-solid{% else %}-regular{% endif %} fa-heart" {% if prod.id in wishlisted_ids %}style="color: #E53E3E;"{% endif %}></i> Wishlist
+                                        </button>
+                                        {% if prod.is_in_stock %}
+                                             <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); addToCart('{{ prod.id }}', 1)">Add to Cart</button>
+                                        {% else %}
+                                             <button class="btn btn-secondary btn-sm" disabled style="opacity: 0.6; cursor: not-allowed;" onclick="event.stopPropagation();">Out of Stock</button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div style="text-align: center; padding: 4rem; background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                        <i class="fa fa-info-circle" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                        <h3>No Products Found</h3>
+                        <p style="color: var(--text-secondary); margin-top: 0.5rem;">We couldn't find any products matching your selected filter parameters.</p>
+                        <a href="{% url 'home' %}" class="btn btn-primary btn-sm" style="margin-top: 1.5rem;">Reset Filters</a>
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- 4. CUSTOMER REVIEWS CAROUSEL -->
+<section class="section-padding container">
+    <div class="reviews-section">
+        <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; text-transform: uppercase;">What Our Customers Say</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 3rem;">Read reviews about our fast delivery, excellent service, and product quality.</p>
+        
+        <div class="reviews-carousel-outer">
+            <div class="reviews-carousel" id="reviews-carousel">
+                
+                <!-- Review 1 -->
+                <div class="review-slide">
+                    <div class="review-avatar-container">JD</div>
+                    <div class="review-rating">
+                        <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
+                    </div>
+                    <p class="review-text">"I ordered the headphones and they arrived within 24 hours! The sound quality is incredible and the packaging was super secure. Zivi is now my go-to for online shopping!"</p>
+                    <span class="review-author">John Doe &ndash; Verified Buyer</span>
+                </div>
+                
+                <!-- Review 2 -->
+                <div class="review-slide">
+                    <div class="review-avatar-container">SM</div>
+                    <div class="review-rating">
+                        <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
+                    </div>
+                    <p class="review-text">"The clothing catalog has amazing fits! Zara blazers fit perfectly, and the silk dress has a premium touch. Will definitely purchase more products next week."</p>
+                    <span class="review-author">Sarah Miller &ndash; Fashion Enthusiast</span>
+                </div>
+
+                <!-- Review 3 -->
+                <div class="review-slide">
+                    <div class="review-avatar-container">AP</div>
+                    <div class="review-rating">
+                        <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa-star-half-alt"></i>
+                    </div>
+                    <p class="review-text">"Superb customer service! I had an issue with my shipping address, but their support resolved it within 10 minutes. Delivery was on time, and the items are of great quality."</p>
+                    <span class="review-author">Alex Patterson &ndash; Regular Customer</span>
+                </div>
+
+                <!-- Review 4 -->
+                <div class="review-slide">
+                    <div class="review-avatar-container">LK</div>
+                    <div class="review-rating">
+                        <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
+                    </div>
+                    <p class="review-text">"Highly trustable site. Checked out with UPI smoothly, order was confirmed instantly. Received the Lego race kit in pristine condition. My kid is extremely happy!"</p>
+                    <span class="review-author">Lisa K. &ndash; Happy Parent</span>
+                </div>
+
+            </div>
+        </div>
+        
+        <!-- manual slide bullets -->
+        <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem;" id="reviews-dots">
+            <!-- generated by JS -->
+        </div>
+    </div>
+</section>
+
+{% endblock %}

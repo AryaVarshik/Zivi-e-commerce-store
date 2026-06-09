@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Database (local only — use PostgreSQL on Render)
+db.sqlite3
+*.sqlite3
+
+# Django
+staticfiles/
+*.log
+local_settings.py
+
+# Environment secrets
+.env
+.env.*
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Archives / misc
+*.zip
+*.tar.gz

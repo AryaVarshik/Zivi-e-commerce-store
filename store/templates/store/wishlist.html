@@ -1,0 +1,208 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Zivi | My Wishlist{% endblock %}
+
+{% block content %}
+<section class="section-padding">
+    <div class="container">
+        
+        <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 2rem;"><i class="fa-regular fa-heart" style="color: var(--primary-color);"></i> My Wishlist</h1>
+
+        {% if wishlist_items %}
+            <div class="product-grid" style="margin-bottom: 5rem;">
+                {% for item in wishlist_items %}
+                    {% with prod=item.product %}
+                    <div class="product-card" id="wishlist-row-{{ prod.id }}" onclick="window.location.href='{% url 'product_detail' prod.slug %}'" style="cursor: pointer;">
+                        <div class="product-image-container">
+                            <img src="{{ prod.image_url }}" alt="{{ prod.name }}">
+                            <div class="product-badge-container">
+                                {% if prod.is_discounted %}
+                                    <span class="badge badge-sale">-{{ prod.discount_percentage }}%</span>
+                                {% endif %}
+                                {% if prod.is_flash_sale %}
+                                     <span class="badge" style="background-color: var(--secondary-color); color: white;">Flash Sale</span>
+                                {% endif %}
+                            </div>
+                            <button class="product-wishlist-btn active" onclick="event.stopPropagation(); removeWishlistItem('{{ prod.id }}')" title="Remove from Wishlist">
+                                <i class="fa-solid fa-heart"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="product-info">
+                            <span class="product-cat">{{ prod.category.name }}</span>
+                            <h3 class="product-title"><a href="{% url 'product_detail' prod.slug %}" onclick="event.stopPropagation();">{{ prod.name }}</a></h3>
+                            
+                            <div class="product-rating">
+                                {% for i in prod.rating_stars_full %}<i class="fa fa-star"></i>{% endfor %}
+                                {% if prod.rating_stars_half %}<i class="fa fa-star-half-alt"></i>{% endif %}
+                                {% for i in prod.rating_stars_empty %}<i class="fa-regular fa-star"></i>{% endfor %}
+                                <span>({{ prod.rating }})</span>
+                            </div>
+                            
+                            <div class="product-price-row">
+                                {% if prod.is_discounted %}
+                                    <span class="product-price discounted">${{ prod.discount_price }}</span>
+                                    <span class="product-old-price">${{ prod.price }}</span>
+                                {% else %}
+                                    <span class="product-price">${{ prod.price }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="product-actions" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                {% if prod.is_in_stock %}
+                                     <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); moveWishlistToCart('{{ prod.id }}')"><i class="fa fa-cart-plus"></i> Move to Cart</button>
+                                {% else %}
+                                     <button class="btn btn-secondary btn-sm" disabled style="opacity: 0.6; cursor: not-allowed;" onclick="event.stopPropagation();">Out of Stock</button>
+                                {% endif %}
+                                <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); removeWishlistItem('{{ prod.id }}')" title="Remove from Wishlist"><i class="fa fa-trash"></i> Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 5rem 2rem; background: var(--bg-secondary); border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 5rem;">
+                <i class="fa-regular fa-heart" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1.5rem; display: block;"></i>
+                <h3>Your Wishlist is Empty</h3>
+                <p style="color: var(--text-secondary); margin-top: 0.5rem; margin-bottom: 2rem;">Save items that you like to access them here later.</p>
+                <a href="{% url 'home' %}" class="btn btn-primary">Start Shopping</a>
+            </div>
+        {% endif %}
+
+        <!-- Related products section -->
+        <div style="border-top: 1px solid var(--border-color); padding-top: 3rem; margin-bottom: 4rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 2rem;">Similar & Related Products</h2>
+            <div class="product-grid">
+                {% for prod in related_products %}
+                    <div class="product-card" onclick="window.location.href='{% url 'product_detail' prod.slug %}'" style="cursor: pointer;">
+                        <div class="product-image-container">
+                            <img src="{{ prod.image_url }}" alt="{{ prod.name }}">
+                            <div class="product-badge-container">
+                                {% if prod.is_discounted %}
+                                    <span class="badge badge-sale">-{{ prod.discount_percentage }}%</span>
+                                {% endif %}
+                            </div>
+                            <button class="product-wishlist-btn {% if prod.id in wishlisted_ids %}active{% endif %}" onclick="event.stopPropagation(); toggleWishlist('{{ prod.id }}', this)" title="Add to Wishlist">
+                                <i class="fa-solid fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-cat">{{ prod.category.name }}</span>
+                            <h3 class="product-title"><a href="{% url 'product_detail' prod.slug %}" onclick="event.stopPropagation();">{{ prod.name }}</a></h3>
+                            <div class="product-price-row">
+                                {% if prod.is_discounted %}
+                                    <span class="product-price discounted">${{ prod.discount_price }}</span>
+                                    <span class="product-old-price">${{ prod.price }}</span>
+                                {% else %}
+                                    <span class="product-price">${{ prod.price }}</span>
+                                {% endif %}
+                            </div>
+                            <button class="btn btn-secondary btn-sm {% if prod.id in wishlisted_ids %}active{% endif %}" onclick="event.stopPropagation(); toggleWishlist('{{ prod.id }}', this)" style="width: 100%;">
+                                <i class="fa{% if prod.id in wishlisted_ids %}-solid{% else %}-regular{% endif %} fa-heart" {% if prod.id in wishlisted_ids %}style="color: #E53E3E;"{% endif %}></i> Wishlist
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Exclusive sale products section -->
+        <div style="border-top: 1px solid var(--border-color); padding-top: 3rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 2rem; color: var(--primary-color);"><i class="fa fa-bolt"></i> Exclusive Sale Products</h2>
+            <div class="product-grid">
+                {% for prod in exclusive_sale %}
+                    <div class="product-card" onclick="window.location.href='{% url 'product_detail' prod.slug %}'" style="cursor: pointer;">
+                        <div class="product-image-container">
+                            <img src="{{ prod.image_url }}" alt="{{ prod.name }}">
+                            <div class="product-badge-container">
+                                {% if prod.is_discounted %}
+                                    <span class="badge badge-sale">-{{ prod.discount_percentage }}%</span>
+                                {% endif %}
+                                <span class="badge" style="background-color: var(--secondary-color); color: white;">Flash Sale</span>
+                            </div>
+                            <button class="product-wishlist-btn {% if prod.id in wishlisted_ids %}active{% endif %}" onclick="event.stopPropagation(); toggleWishlist('{{ prod.id }}', this)" title="Add to Wishlist">
+                                <i class="fa-solid fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-cat">{{ prod.category.name }}</span>
+                            <h3 class="product-title"><a href="{% url 'product_detail' prod.slug %}" onclick="event.stopPropagation();">{{ prod.name }}</a></h3>
+                            <div class="product-price-row">
+                                {% if prod.is_discounted %}
+                                    <span class="product-price discounted">${{ prod.discount_price }}</span>
+                                    <span class="product-old-price">${{ prod.price }}</span>
+                                {% else %}
+                                    <span class="product-price">${{ prod.price }}</span>
+                                {% endif %}
+                            </div>
+                            <button class="btn btn-secondary btn-sm {% if prod.id in wishlisted_ids %}active{% endif %}" onclick="event.stopPropagation(); toggleWishlist('{{ prod.id }}', this)" style="width: 100%;">
+                                <i class="fa{% if prod.id in wishlisted_ids %}-solid{% else %}-regular{% endif %} fa-heart" {% if prod.id in wishlisted_ids %}style="color: #E53E3E;"{% endif %}></i> Wishlist
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Inline script for Wishlist operations -->
+<script>
+    function removeWishlistItem(productId) {
+        fetch('/api/wishlist/remove/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': CSRF_TOKEN
+            },
+            body: JSON.stringify({ product_id: productId })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Smooth remove from UI
+                const row = document.getElementById('wishlist-row-' + productId);
+                if (row) {
+                     row.style.opacity = 0;
+                     row.style.transform = 'scale(0.9)';
+                     setTimeout(() => {
+                         window.location.reload();
+                     }, 300);
+                }
+            }
+        });
+    }
+
+    function moveWishlistToCart(productId) {
+        // Step 1: Add to Cart
+        fetch('/api/cart/add/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': CSRF_TOKEN
+            },
+            body: JSON.stringify({ product_id: productId, quantity: 1 })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Step 2: Remove from Wishlist
+                fetch('/api/wishlist/remove/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': CSRF_TOKEN
+                    },
+                    body: JSON.stringify({ product_id: productId })
+                })
+                .then(() => {
+                     window.location.reload();
+                });
+            }
+        });
+    }
+</script>
+{% endblock %}

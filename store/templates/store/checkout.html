@@ -1,0 +1,325 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Zivi | Checkout{% endblock %}
+
+{% block content %}
+<section class="section-padding">
+    <div class="container">
+        
+        <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 2rem;"><i class="fa fa-shopping-cart" style="color: var(--primary-color);"></i> Secure Checkout</h1>
+
+        <form action="{% url 'checkout' %}" method="POST" id="checkout-form">
+            {% csrf_token %}
+            <div class="checkout-layout">
+                
+                <!-- Left Side: Forms -->
+                <div>
+                    <!-- Shipping Details -->
+                    <div class="form-card">
+                        <h3 class="form-card-title"><i class="fa fa-truck"></i> Shipping Information</h3>
+                        
+                        <div class="form-group">
+                            <label for="shipping_address">Street Address *</label>
+                            <textarea name="shipping_address" id="shipping_address" rows="3" class="form-control" placeholder="123 Main St, Apt 4B" required>{{ prefill.address }}</textarea>
+                        </div>
+                        
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label for="phone">Phone Number *</label>
+                                <input type="tel" name="phone" id="phone" class="form-control" placeholder="123-456-7890" value="{{ prefill.phone }}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">Email Address *</label>
+                                <input type="email" name="email" id="email" class="form-control" placeholder="john@example.com" value="{{ prefill.email }}" required>
+                            </div>
+                        </div>
+
+                        <!-- Delivery Options -->
+                        <div class="form-group" style="margin-top: 1rem;">
+                            <label>Delivery Method</label>
+                            <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem;">
+                                <label class="filter-checkbox-label" style="background: var(--bg-secondary); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                                    <input type="radio" name="delivery_option" value="Standard" checked onchange="updateDeliveryCharge('Standard')">
+                                    <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                                        <span style="font-weight: 700; font-size: 0.9rem;">Standard Delivery</span>
+                                        <span style="font-size: 0.75rem; color: var(--text-secondary);">Takes 3-5 business days. Free on orders above $50.00, else $5.00.</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="filter-checkbox-label" style="background: var(--bg-secondary); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                                    <input type="radio" name="delivery_option" value="Express" onchange="updateDeliveryCharge('Express')">
+                                    <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                                        <span style="font-weight: 700; font-size: 0.9rem;">Express Delivery (+$15.00)</span>
+                                        <span style="font-size: 0.75rem; color: var(--text-secondary);">Guaranteed delivery within 24 hours.</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gift Option -->
+                    <div class="form-card">
+                        <h3 class="form-card-title"><i class="fa fa-gift"></i> Gifting Options</h3>
+                        <label class="checkbox-group">
+                            <input type="checkbox" name="is_gift" id="is_gift" onchange="toggleGiftOption(this)">
+                            <span>This order is a gift for someone special</span>
+                        </label>
+                        
+                        <div class="gift-collapsible" id="gift-collapsible-section">
+                            <div style="border-top: 1px dashed var(--border-color); padding-top: 1.25rem; margin-top: 1rem;">
+                                <div class="form-grid-2">
+                                    <div class="form-group">
+                                        <label for="gift_recipient_name">Recipient Name</label>
+                                        <input type="text" name="gift_recipient_name" id="gift_recipient_name" class="form-control" placeholder="Recipient's Name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="gift_recipient_phone">Recipient Phone</label>
+                                        <input type="tel" name="gift_recipient_phone" id="gift_recipient_phone" class="form-control" placeholder="Recipient's Phone">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="gift_message">Gift Message (Max 250 characters)</label>
+                                    <textarea name="gift_message" id="gift_message" rows="3" class="form-control" placeholder="Write a sweet message..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabbed Payment Option UI -->
+                    <div class="form-card">
+                        <h3 class="form-card-title"><i class="fa fa-credit-card"></i> Payment Method</h3>
+                        
+                        <input type="hidden" name="payment_option" id="payment_option_field" value="Cash on Delivery">
+
+                        <div class="payment-tabs">
+                            <button type="button" class="payment-tab active" onclick="switchPaymentTab('cod', 'Cash on Delivery')">Cash On Delivery</button>
+                            <button type="button" class="payment-tab" onclick="switchPaymentTab('upi', 'UPI Payment')">UPI</button>
+                            <button type="button" class="payment-tab" onclick="switchPaymentTab('card', 'Credit/Debit Card')">Credit/Debit Card</button>
+                            <button type="button" class="payment-tab" onclick="switchPaymentTab('netbanking', 'Net Banking')">Net Banking</button>
+                            <button type="button" class="payment-tab" onclick="switchPaymentTab('wallet', 'Digital Wallet')">Wallet</button>
+                        </div>
+
+                        <!-- 1. Cash on Delivery -->
+                        <div class="payment-content active" id="payment-cod">
+                            <p style="font-size: 0.9rem; color: var(--text-secondary);">
+                                 Pay with cash upon delivery of your products. No extra handling charges. Please keep exact change ready.
+                            </p>
+                        </div>
+
+                        <!-- 2. UPI -->
+                        <div class="payment-content" id="payment-upi">
+                            <div class="form-group">
+                                <label for="upi_id">Enter Virtual Payment Address (UPI ID) *</label>
+                                <input type="text" id="upi_id" class="form-control" placeholder="username@okaxis" style="max-width: 320px;">
+                                <span style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem; display: block;">A payment request will be sent to your UPI app.</span>
+                            </div>
+                        </div>
+
+                        <!-- 3. Credit/Debit Card -->
+                        <div class="payment-content" id="payment-card">
+                            <div class="form-group">
+                                <label for="card_name">Cardholder Name *</label>
+                                <input type="text" id="card_name" class="form-control" placeholder="John Doe">
+                            </div>
+                            <div class="form-group">
+                                <label for="card_num">Card Number *</label>
+                                <input type="text" id="card_num" class="form-control" placeholder="0000 0000 0000 0000">
+                            </div>
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label for="card_exp">Expiration Date *</label>
+                                    <input type="text" id="card_exp" class="form-control" placeholder="MM/YY">
+                                </div>
+                                <div class="form-group">
+                                    <label for="card_cvv">CVV *</label>
+                                    <input type="password" id="card_cvv" class="form-control" placeholder="123" maxlength="3">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. Net Banking -->
+                        <div class="payment-content" id="payment-netbanking">
+                            <div class="form-group">
+                                <label for="bank_select">Select Your Bank *</label>
+                                <select id="bank_select" class="form-control" style="appearance: auto;">
+                                    <option value="">-- Choose Bank --</option>
+                                    <option value="chase">Chase Bank</option>
+                                    <option value="bofa">Bank of America</option>
+                                    <option value="wells">Wells Fargo</option>
+                                    <option value="citi">CitiGroup</option>
+                                    <option value="hsbc">HSBC Bank</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 5. Wallets -->
+                        <div class="payment-content" id="payment-wallet">
+                            <div class="form-group">
+                                <label for="wallet_select">Select Wallet *</label>
+                                <select id="wallet_select" class="form-control" style="appearance: auto;">
+                                    <option value="">-- Choose Wallet --</option>
+                                    <option value="paypal">PayPal</option>
+                                    <option value="gpay">Google Pay Wallet</option>
+                                    <option value="apple">Apple Pay</option>
+                                    <option value="venmo">Venmo</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side: Order Summary -->
+                <div class="summary-box">
+                    <h3 class="summary-title">Order Items</h3>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 1rem; max-height: 280px; overflow-y: auto; margin-bottom: 1.5rem; padding-right: 0.25rem;">
+                        {% for item in cart.items.all %}
+                        <div style="display: flex; gap: 0.75rem; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; gap: 0.75rem; align-items: center; overflow: hidden;">
+                                <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" style="width: 45px; height: 45px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                                <div style="font-size: 0.8rem; overflow: hidden;">
+                                    <h4 style="font-weight: 700; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">{{ item.product.name }}</h4>
+                                    <span style="color: var(--text-secondary);">Qty: {{ item.quantity }}</span>
+                                </div>
+                            </div>
+                            <span style="font-weight: 700; font-size: 0.85rem;">${{ item.total_price }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                        <div class="summary-row">
+                            <span>Cart Subtotal</span>
+                            <span>$<span id="cart-subtotal">{{ cart.subtotal }}</span></span>
+                        </div>
+                        
+                        <div class="summary-row discount-row">
+                            <span>Discounts</span>
+                            <span>-$<span>{{ cart.total_discount|floatformat:2 }}</span></span>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Delivery Fee</span>
+                            <span id="checkout-delivery-container">
+                                {% if cart.delivery_charge == 0 %}
+                                    <strong style="color: var(--success);">FREE</strong>
+                                {% else %}
+                                    $<span id="checkout-delivery">{{ cart.delivery_charge|floatformat:2 }}</span>
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <div class="summary-row total-row">
+                            <span>Total Amount</span>
+                            <span>$<span id="checkout-grand-total">{{ cart.grand_total }}</span></span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fa fa-shield-check"></i> Place Secure Order</button>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); text-align: center; margin-top: 1rem; line-height: 1.35;">
+                         By placing your order, you agree to Zivi's Privacy Notice and Conditions of Use.
+                    </p>
+                </div>
+
+            </div>
+        </form>
+
+    </div>
+</section>
+
+<!-- Inline script for checkout interactivity -->
+<script>
+    function toggleGiftOption(checkbox) {
+        const giftSec = document.getElementById('gift-collapsible-section');
+        const nameField = document.getElementById('gift_recipient_name');
+        const phoneField = document.getElementById('gift_recipient_phone');
+        
+        if (checkbox.checked) {
+            giftSec.classList.add('open');
+            nameField.setAttribute('required', 'true');
+            phoneField.setAttribute('required', 'true');
+        } else {
+            giftSec.classList.remove('open');
+            nameField.removeAttribute('required');
+            phoneField.removeAttribute('required');
+            // reset fields
+            nameField.value = '';
+            phoneField.value = '';
+            document.getElementById('gift_message').value = '';
+        }
+    }
+
+    function switchPaymentTab(tabId, paymentName) {
+        // Toggle tabs
+        const tabs = document.querySelectorAll('.payment-tab');
+        tabs.forEach(t => t.classList.remove('active'));
+        
+        // Find click origin
+        event.currentTarget.classList.add('active');
+
+        // Toggle content panels
+        const contents = document.querySelectorAll('.payment-content');
+        contents.forEach(c => c.classList.remove('active'));
+        document.getElementById('payment-' + tabId).classList.add('active');
+
+        // Update hidden field value
+        document.getElementById('payment_option_field').value = paymentName;
+
+        // Toggle required fields on inputs
+        const upiInput = document.getElementById('upi_id');
+        const cardName = document.getElementById('card_name');
+        const cardNum = document.getElementById('card_num');
+        const cardExp = document.getElementById('card_exp');
+        const cardCvv = document.getElementById('card_cvv');
+        const bankSelect = document.getElementById('bank_select');
+        const walletSelect = document.getElementById('wallet_select');
+
+        // Reset required state
+        upiInput.removeAttribute('required');
+        cardName.removeAttribute('required');
+        cardNum.removeAttribute('required');
+        cardExp.removeAttribute('required');
+        cardCvv.removeAttribute('required');
+        bankSelect.removeAttribute('required');
+        walletSelect.removeAttribute('required');
+
+        if (tabId === 'upi') {
+            upiInput.setAttribute('required', 'true');
+        } else if (tabId === 'card') {
+            cardName.setAttribute('required', 'true');
+            cardNum.setAttribute('required', 'true');
+            cardExp.setAttribute('required', 'true');
+            cardCvv.setAttribute('required', 'true');
+        } else if (tabId === 'netbanking') {
+            bankSelect.setAttribute('required', 'true');
+        } else if (tabId === 'wallet') {
+            walletSelect.setAttribute('required', 'true');
+        }
+    }
+
+    function updateDeliveryCharge(type) {
+        const subtotal = parseFloat('{{ cart.subtotal }}') || 0;
+        let deliveryFee = 0;
+        
+        if (type === 'Express') {
+            deliveryFee = 15.00;
+        } else {
+            deliveryFee = subtotal < 50.0 ? 5.0 : 0.0;
+        }
+        
+        // Update DOM
+        const deliveryContainer = document.getElementById('checkout-delivery-container');
+        if (deliveryFee === 0) {
+            deliveryContainer.innerHTML = '<strong style="color: var(--success);">FREE</strong>';
+        } else {
+            deliveryContainer.innerHTML = '$<span id="checkout-delivery">' + deliveryFee.toFixed(2) + '</span>';
+        }
+        
+        const grandTotal = subtotal + deliveryFee;
+        document.getElementById('checkout-grand-total').innerText = grandTotal.toFixed(2);
+    }
+</script>
+
+{% endblock %}

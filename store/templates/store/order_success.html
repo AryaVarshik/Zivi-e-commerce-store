@@ -1,0 +1,71 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Zivi | Order Placed Successfully!{% endblock %}
+
+{% block content %}
+<section class="section-padding">
+    <div class="container">
+        
+        <div class="success-container">
+            <div class="success-icon">
+                <i class="fa fa-check"></i>
+            </div>
+            
+            <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--success);">Order Placed Successfully!</h1>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                 Thank you for shopping with Zivi. Your payment check was successful, and our team is preparing your package.
+            </p>
+            
+            <!-- Details Card -->
+            <div style="background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.5rem; text-align: left; margin-bottom: 2rem;">
+                 <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                      <span style="color: var(--text-secondary); font-weight: 600;">Order ID</span>
+                      <strong style="color: var(--primary-color);">{{ order.order_id }}</strong>
+                 </div>
+                 
+                 <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                      <span style="color: var(--text-secondary); font-weight: 600;">Total Paid</span>
+                      <strong style="color: var(--text-color);">${{ order.total_amount }}</strong>
+                 </div>
+
+                 <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                      <span style="color: var(--text-secondary); font-weight: 600;">Delivery Method</span>
+                      <strong style="color: var(--text-color);">{{ order.delivery_option }}</strong>
+                 </div>
+
+                 <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                      <span style="color: var(--text-secondary); font-weight: 600;">Estimated Delivery</span>
+                      <strong style="color: var(--success);">{{ est_delivery|date:"l, M d, Y" }}</strong>
+                 </div>
+
+                 <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                      <span style="color: var(--text-secondary); font-weight: 600; font-size: 0.85rem;">Shipping Address</span>
+                      <p style="font-size: 0.875rem; color: var(--text-color); line-height: 1.4;">
+                           {{ order.shipping_address }}<br>
+                           Phone: {{ order.phone }}
+                      </p>
+                 </div>
+
+                 {% if order.is_gift %}
+                 <div style="border-top: 1px dashed var(--border-color); padding-top: 0.75rem; margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.25rem;">
+                      <span style="color: var(--primary-color); font-weight: 700; font-size: 0.85rem;"><i class="fa fa-gift"></i> Gift Recipient Details</span>
+                      <p style="font-size: 0.875rem; color: var(--text-color); line-height: 1.4;">
+                           Name: {{ order.gift_recipient_name }}<br>
+                           Phone: {{ order.gift_recipient_phone }}<br>
+                           Message: <em>"{{ order.gift_message }}"</em>
+                      </p>
+                 </div>
+                 {% endif %}
+            </div>
+
+            <!-- Action buttons -->
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                 <a href="{% url 'home' %}" class="btn btn-primary" style="flex: 1; min-width: 180px;">Continue Shopping</a>
+                 <a href="{% url 'profile' %}#orders" class="btn btn-secondary" style="flex: 1; min-width: 180px;">View My Orders</a>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

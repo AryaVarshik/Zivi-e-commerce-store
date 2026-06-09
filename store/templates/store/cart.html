@@ -1,0 +1,295 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Zivi | Shopping Cart{% endblock %}
+
+{% block content %}
+<section class="section-padding">
+    <div class="container">
+        
+        <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 2rem;"><i class="fa-solid fa-cart-shopping" style="color: var(--primary-color);"></i> Shopping Cart</h1>
+
+        {% if cart.items.exists %}
+            <div class="cart-layout">
+                
+                <!-- Left: Cart items table -->
+                <div class="cart-table-container">
+                    <table class="cart-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Subtotal</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart.items.all %}
+                                <tr id="cart-item-row-{{ item.product.id }}">
+                                    <!-- Product Details -->
+                                    <td>
+                                        <div class="cart-product-cell">
+                                            <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="cart-product-img">
+                                            <div>
+                                                {% if item.product.brand %}
+                                                    <span class="cart-product-brand">{{ item.product.brand.name }}</span>
+                                                {% endif %}
+                                                <h4 class="cart-product-title">
+                                                     <a href="{% url 'product_detail' item.product.slug %}">{{ item.product.name }}</a>
+                                                </h4>
+                                                <!-- Move to Wishlist / Save for Later & Remove Actions -->
+                                                <div style="margin-top: 0.5rem; display: flex; gap: 0.75rem; font-size: 0.8rem;">
+                                                    <a href="#" onclick="event.preventDefault(); moveCartToWishlist('{{ item.product.id }}')" style="color: var(--primary-color); font-weight: 600;"><i class="fa-solid fa-heart"></i> Save for Later / Move to Wishlist</a>
+                                                    <span style="color: var(--border-color);">|</span>
+                                                    <a href="#" onclick="event.preventDefault(); updateCartQty('{{ item.product.id }}', 'remove')" style="color: var(--danger); font-weight: 600;"><i class="fa-regular fa-trash-can"></i> Remove</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- Unit Price -->
+                                    <td class="cart-price-cell">
+                                         ${{ item.product.final_price }}
+                                    </td>
+                                    
+                                    <!-- Qty Selector -->
+                                    <td>
+                                        <div class="qty-selector" style="max-width: 120px;">
+                                            <button class="qty-btn" onclick="updateCartQty('{{ item.product.id }}', 'decrease')"><i class="fa fa-minus"></i></button>
+                                            <input class="qty-input" type="number" id="qty-input-{{ item.product.id }}" value="{{ item.quantity }}" readonly>
+                                            <button class="qty-btn" onclick="updateCartQty('{{ item.product.id }}', 'increase')"><i class="fa fa-plus"></i></button>
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- Line Price Subtotal -->
+                                    <td class="cart-price-cell text-primary" style="color: var(--primary-color);">
+                                         $<span id="item-total-{{ item.product.id }}">{{ item.total_price }}</span>
+                                    </td>
+                                    
+                                    <!-- Remove Action -->
+                                    <td>
+                                        <button class="cart-remove-btn" onclick="updateCartQty('{{ item.product.id }}', 'remove')" title="Remove item">
+                                            <i class="fa-regular fa-trash-can"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Right: Summary Box -->
+                <div class="summary-box">
+                    <h3 class="summary-title">Order Summary</h3>
+                    
+                    <div class="summary-row">
+                        <span>Items Subtotal</span>
+                        <span>$<span id="summary-subtotal">{{ cart.subtotal }}</span></span>
+                    </div>
+                    
+                    <div class="summary-row discount-row">
+                        <span>Total Discounts</span>
+                        <span>-$<span id="summary-discount">{{ cart.total_discount|floatformat:2 }}</span></span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Delivery Fee</span>
+                        <span id="summary-delivery-container">
+                            {% if cart.delivery_charge == 0 %}
+                                <strong style="color: var(--success);">FREE</strong>
+                            {% else %}
+                                $<span id="summary-delivery">{{ cart.delivery_charge|floatformat:2 }}</span>
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="summary-row total-row">
+                        <span>Grand Total</span>
+                        <span>$<span id="summary-grand-total">{{ cart.grand_total }}</span></span>
+                    </div>
+
+                    <a href="{% url 'checkout' %}" class="btn btn-primary" style="width: 100%;"><i class="fa fa-credit-card"></i> Proceed to Checkout</a>
+                    <a href="{% url 'home' %}" class="btn btn-secondary" style="width: 100%; margin-top: 0.75rem;"><i class="fa fa-arrow-left"></i> Continue Shopping</a>
+                </div>
+
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 5rem 2rem; background: var(--bg-secondary); border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 5rem;">
+                <i class="fa-solid fa-cart-shopping" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1.5rem; display: block;"></i>
+                <h3>Your Cart is Empty</h3>
+                <p style="color: var(--text-secondary); margin-top: 0.5rem; margin-bottom: 2rem;">Add products that you like to check out.</p>
+                <a href="{% url 'home' %}" class="btn btn-primary">Start Shopping</a>
+            </div>
+        {% endif %}
+
+        <!-- Related products section -->
+        <div style="border-top: 1px solid var(--border-color); padding-top: 3rem; margin-bottom: 4rem; margin-top: 5rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 2rem;">Similar & Related Products</h2>
+            <div class="product-grid">
+                {% for prod in related_products %}
+                    <div class="product-card" onclick="window.location.href='{% url 'product_detail' prod.slug %}'" style="cursor: pointer;">
+                        <div class="product-image-container">
+                            <img src="{{ prod.image_url }}" alt="{{ prod.name }}">
+                            <div class="product-badge-container">
+                                {% if prod.is_discounted %}
+                                    <span class="badge badge-sale">-{{ prod.discount_percentage }}%</span>
+                                {% endif %}
+                            </div>
+                            <button class="product-wishlist-btn {% if prod.id in wishlisted_ids %}active{% endif %}" onclick="event.stopPropagation(); toggleWishlist('{{ prod.id }}', this)" title="Add to Wishlist">
+                                <i class="fa-solid fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-cat">{{ prod.category.name }}</span>
+                            <h3 class="product-title"><a href="{% url 'product_detail' prod.slug %}" onclick="event.stopPropagation();">{{ prod.name }}</a></h3>
+                            <div class="product-price-row">
+                                {% if prod.is_discounted %}
+                                    <span class="product-price discounted">${{ prod.discount_price }}</span>
+                                    <span class="product-old-price">${{ prod.price }}</span>
+                                {% else %}
+                                    <span class="product-price">${{ prod.price }}</span>
+                                {% endif %}
+                            </div>
+                            <button class="btn btn-secondary btn-sm {% if prod.id in wishlisted_ids %}active{% endif %}" onclick="event.stopPropagation(); toggleWishlist('{{ prod.id }}', this)" style="width: 100%;">
+                                <i class="fa{% if prod.id in wishlisted_ids %}-solid{% else %}-regular{% endif %} fa-heart" {% if prod.id in wishlisted_ids %}style="color: #E53E3E;"{% endif %}></i> Wishlist
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Exclusive sale products section -->
+        <div style="border-top: 1px solid var(--border-color); padding-top: 3rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 2rem; color: var(--primary-color);"><i class="fa fa-bolt"></i> Exclusive Sale Products</h2>
+            <div class="product-grid">
+                {% for prod in exclusive_sale %}
+                    <div class="product-card" onclick="window.location.href='{% url 'product_detail' prod.slug %}'" style="cursor: pointer;">
+                        <div class="product-image-container">
+                            <img src="{{ prod.image_url }}" alt="{{ prod.name }}">
+                            <div class="product-badge-container">
+                                {% if prod.is_discounted %}
+                                    <span class="badge badge-sale">-{{ prod.discount_percentage }}%</span>
+                                {% endif %}
+                                <span class="badge" style="background-color: var(--secondary-color); color: white;">Flash Sale</span>
+                            </div>
+                            <button class="product-wishlist-btn {% if prod.id in wishlisted_ids %}active{% endif %}" onclick="event.stopPropagation(); toggleWishlist('{{ prod.id }}', this)" title="Add to Wishlist">
+                                <i class="fa-solid fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-cat">{{ prod.category.name }}</span>
+                            <h3 class="product-title"><a href="{% url 'product_detail' prod.slug %}" onclick="event.stopPropagation();">{{ prod.name }}</a></h3>
+                            <div class="product-price-row">
+                                {% if prod.is_discounted %}
+                                    <span class="product-price discounted">${{ prod.discount_price }}</span>
+                                    <span class="product-old-price">${{ prod.price }}</span>
+                                {% else %}
+                                    <span class="product-price">${{ prod.price }}</span>
+                                {% endif %}
+                            </div>
+                            <button class="btn btn-secondary btn-sm {% if prod.id in wishlisted_ids %}active{% endif %}" onclick="event.stopPropagation(); toggleWishlist('{{ prod.id }}', this)" style="width: 100%;">
+                                <i class="fa{% if prod.id in wishlisted_ids %}-solid{% else %}-regular{% endif %} fa-heart" {% if prod.id in wishlisted_ids %}style="color: #E53E3E;"{% endif %}></i> Wishlist
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Inline script for Cart operations -->
+<script>
+    function updateCartQty(productId, action) {
+        fetch('/api/cart/update/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': CSRF_TOKEN
+            },
+            body: JSON.stringify({ product_id: productId, action: action })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Update badge
+                const badge = document.getElementById('cart-badge');
+                if (badge) badge.innerText = data.cart_count;
+                
+                // If action was remove or qty reaches 0, reload/delete row
+                if (action === 'remove' || data.item_qty === 0) {
+                    const row = document.getElementById('cart-item-row-' + productId);
+                    if (row) {
+                        row.style.opacity = 0;
+                        row.style.transform = 'translateX(-20px)';
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 300);
+                    } else {
+                        window.location.reload();
+                    }
+                    return;
+                }
+                
+                // Update individual line item total
+                const itemTotal = document.getElementById('item-total-' + productId);
+                if (itemTotal) itemTotal.innerText = data.item_total.toFixed(2);
+                
+                // Update quantity display
+                const qtyInput = document.getElementById('qty-input-' + productId);
+                if (qtyInput) qtyInput.value = data.item_qty;
+                
+                // Update summaries
+                document.getElementById('summary-subtotal').innerText = data.subtotal.toFixed(2);
+                document.getElementById('summary-discount').innerText = data.total_discount.toFixed(2);
+                document.getElementById('summary-grand-total').innerText = data.grand_total.toFixed(2);
+                
+                const deliveryContainer = document.getElementById('summary-delivery-container');
+                if (data.delivery_charge === 0) {
+                     deliveryContainer.innerHTML = '<strong style="color: var(--success);">FREE</strong>';
+                } else {
+                     deliveryContainer.innerHTML = '$<span id="summary-delivery">' + data.delivery_charge.toFixed(2) + '</span>';
+                }
+            } else {
+                 alert(data.message || 'An error occurred while updating the cart.');
+            }
+        });
+    }
+
+    function moveCartToWishlist(productId) {
+        fetch('/api/wishlist/add/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': CSRF_TOKEN
+            },
+            body: JSON.stringify({ product_id: productId })
+        })
+        .then(res => {
+            if (res.status === 401) {
+                 window.location.href = '/login/?next=' + encodeURIComponent(window.location.pathname);
+                 return;
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data && (data.status === 'success' || data.status === 'info')) {
+                fetch('/api/cart/update/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': CSRF_TOKEN
+                    },
+                    body: JSON.stringify({ product_id: productId, action: 'remove' })
+                })
+                .then(() => {
+                     window.location.reload();
+                });
+            }
+        });
+    }
+</script>
+{% endblock %}

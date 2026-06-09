@@ -1,0 +1,242 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Zivi Flash Sale | Mega Discounts Available!{% endblock %}
+
+{% block content %}
+
+<!-- Flash Sale Promo Header with Countdown Timer -->
+<section style="background-color: var(--primary-light); padding: 3.5rem 0; border-bottom: 1px solid var(--border-color); position: relative; overflow: hidden;">
+    <div class="container" style="display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; z-index: 5;">
+        <span class="badge badge-sale" style="font-size: 0.95rem; padding: 0.4rem 1rem; margin-bottom: 1rem; border-radius: var(--radius-full);">
+             <i class="fa fa-bolt"></i> Hot Deal
+        </span>
+        <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.75rem;">FLASH SALE CORNER</h1>
+        <p style="color: var(--text-secondary); max-width: 600px; margin-bottom: 2rem;">
+             Save big on our selected products. These offers are for a limited time only, so hurry up and checkout before they expire!
+        </p>
+        
+        <!-- Countdown Timer -->
+        <div style="display: flex; gap: 1rem;" id="countdown-timer">
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem 1.25rem; min-width: 70px; box-shadow: var(--shadow-sm);">
+                <span id="timer-hours" style="display: block; font-size: 1.75rem; font-weight: 800; color: var(--primary-color);">08</span>
+                <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Hours</span>
+            </div>
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem 1.25rem; min-width: 70px; box-shadow: var(--shadow-sm);">
+                <span id="timer-minutes" style="display: block; font-size: 1.75rem; font-weight: 800; color: var(--primary-color);">45</span>
+                <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Mins</span>
+            </div>
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem 1.25rem; min-width: 70px; box-shadow: var(--shadow-sm);">
+                <span id="timer-seconds" style="display: block; font-size: 1.75rem; font-weight: 800; color: var(--primary-color);">23</span>
+                <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Secs</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Background expression tags representing sale atmosphere -->
+    <div class="expression-tag tag-1" style="top: 20%; left: 10%; opacity: 0.45; animation-duration: 5s;">FLASH OFFER 🔥</div>
+    <div class="expression-tag tag-2" style="bottom: 20%; right: 10%; opacity: 0.45; animation-duration: 4s;">50% OFF 🌟</div>
+</section>
+
+<!-- Main Store Catalog -->
+<section class="section-padding">
+    <div class="container">
+        
+        <div class="product-section-header">
+            <div>
+                <h2 style="font-size: 1.8rem; font-weight: 800;">Flash Sale Items</h2>
+                <p style="color: var(--text-secondary);">Limited quantities. Items update every few hours.</p>
+            </div>
+            
+            {% if selected_category or selected_brand or price_min or price_max or selected_rating or selected_availability or search_query %}
+                <a href="{% url 'flash_sale' %}" class="btn btn-secondary btn-sm" style="color: var(--danger);"><i class="fa fa-filter-circle-xmark"></i> Clear Filters</a>
+            {% endif %}
+        </div>
+
+        <div class="store-layout">
+            
+            <!-- Sidebar Filters -->
+            <aside class="filter-sidebar">
+                <form action="{% url 'flash_sale' %}" method="GET" id="filter-form">
+                    {% if search_query %}
+                        <input type="hidden" name="q" value="{{ search_query }}">
+                    {% endif %}
+                    {% if selected_category %}
+                        <input type="hidden" name="category" value="{{ selected_category }}">
+                    {% endif %}
+
+                    <!-- Category filter (if not selected) -->
+                    {% if not selected_category %}
+                    <div class="filter-group">
+                        <h4 class="filter-title">Category</h4>
+                        <div class="filter-checkbox-list">
+                            {% for cat in categories %}
+                            <label class="filter-checkbox-label">
+                                <input type="radio" name="category" value="{{ cat.slug }}" onchange="this.form.submit()">
+                                <span>{{ cat.name }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Price Range -->
+                    <div class="filter-group">
+                        <h4 class="filter-title">Price Range</h4>
+                        <div class="price-range-inputs">
+                            <input type="number" name="price_min" placeholder="Min" value="{{ price_min|default:'' }}">
+                            <span style="color: var(--text-secondary);">&ndash;</span>
+                            <input type="number" name="price_max" placeholder="Max" value="{{ price_max|default:'' }}">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm" style="width: 100%; margin-top: 0.75rem;">Apply Price</button>
+                    </div>
+
+                    <!-- Brand -->
+                    <div class="filter-group">
+                        <h4 class="filter-title">Brand</h4>
+                        <div class="filter-checkbox-list">
+                            {% for brand in brands %}
+                            <label class="filter-checkbox-label">
+                                <input type="radio" name="brand" value="{{ brand.slug }}" {% if selected_brand == brand.slug %}checked{% endif %} onchange="this.form.submit()">
+                                <span>{{ brand.name }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Rating stars -->
+                    <div class="filter-group">
+                        <h4 class="filter-title">Rating</h4>
+                        <div class="filter-checkbox-list">
+                            {% for stars in "5432" %}
+                            <label class="filter-checkbox-label">
+                                <input type="radio" name="rating" value="{{ stars }}" {% if selected_rating == stars %}checked{% endif %} onchange="this.form.submit()">
+                                <span class="rating-filter-row">
+                                    {{ stars }}+ <i class="fa fa-star"></i>
+                                </span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Availability -->
+                    <div class="filter-group">
+                        <h4 class="filter-title">Availability</h4>
+                        <div class="filter-checkbox-list">
+                            <label class="filter-checkbox-label">
+                                <input type="radio" name="availability" value="in_stock" {% if selected_availability == 'in_stock' %}checked{% endif %} onchange="this.form.submit()">
+                                <span>In Stock Only</span>
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </aside>
+
+            <!-- Product Grid -->
+            <div style="width: 100%;">
+                {% if products %}
+                    <div class="product-grid">
+                        {% for prod in products %}
+                            <div class="product-card" onclick="window.location.href='{% url 'product_detail' prod.slug %}'" style="cursor: pointer;">
+                                <div class="product-image-container">
+                                    <img src="{{ prod.image_url }}" alt="{{ prod.name }}">
+                                    
+                                    <div class="product-badge-container">
+                                        {% if prod.is_discounted %}
+                                            <span class="badge badge-sale">-{{ prod.discount_percentage }}%</span>
+                                        {% endif %}
+                                        <span class="badge" style="background-color: var(--secondary-color); color: white;">Flash Sale</span>
+                                    </div>
+                                    
+                                    <button class="product-wishlist-btn {% if prod.id in wishlisted_ids %}active{% endif %}" onclick="event.stopPropagation(); toggleWishlist('{{ prod.id }}', this)" title="Add to Wishlist">
+                                        <i class="fa-solid fa-heart"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="product-info">
+                                    <span class="product-cat">{{ prod.category.name }}</span>
+                                    <h3 class="product-title"><a href="{% url 'product_detail' prod.slug %}" onclick="event.stopPropagation();">{{ prod.name }}</a></h3>
+                                    
+                                    <div class="product-rating">
+                                        {% for i in prod.rating_stars_full %}<i class="fa fa-star"></i>{% endfor %}
+                                        {% if prod.rating_stars_half %}<i class="fa fa-star-half-alt"></i>{% endif %}
+                                        {% for i in prod.rating_stars_empty %}<i class="fa-regular fa-star"></i>{% endfor %}
+                                        <span>({{ prod.rating }})</span>
+                                    </div>
+                                    
+                                    <p class="product-desc">{{ prod.description }}</p>
+                                    
+                                    <div class="product-price-row">
+                                        {% if prod.is_discounted %}
+                                            <span class="product-price discounted">${{ prod.discount_price }}</span>
+                                            <span class="product-old-price">${{ prod.price }}</span>
+                                        {% else %}
+                                            <span class="product-price">${{ prod.price }}</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="product-actions">
+                                        <button class="btn btn-secondary btn-sm {% if prod.id in wishlisted_ids %}active{% endif %}" onclick="event.stopPropagation(); toggleWishlist('{{ prod.id }}', this)" title="Wishlist">
+                                            <i class="fa{% if prod.id in wishlisted_ids %}-solid{% else %}-regular{% endif %} fa-heart" {% if prod.id in wishlisted_ids %}style="color: #E53E3E;"{% endif %}></i> Wishlist
+                                        </button>
+                                        {% if prod.is_in_stock %}
+                                             <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); addToCart('{{ prod.id }}', 1)">Add to Cart</button>
+                                        {% else %}
+                                             <button class="btn btn-secondary btn-sm" disabled style="opacity: 0.6; cursor: not-allowed;" onclick="event.stopPropagation();">Out of Stock</button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div style="text-align: center; padding: 4rem; background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                        <i class="fa fa-info-circle" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                        <h3>No Flash Sale Products</h3>
+                        <p style="color: var(--text-secondary); margin-top: 0.5rem;">No flash sale products currently match your criteria.</p>
+                        <a href="{% url 'flash_sale' %}" class="btn btn-primary btn-sm" style="margin-top: 1.5rem;">Reset Filters</a>
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Custom JS script inline for ticking countdown timer -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Set countdown target time (say 8 hours and 45 minutes from now)
+        let hoursVal = 8;
+        let minsVal = 45;
+        let secsVal = 23;
+        
+        let totalSeconds = (hoursVal * 3600) + (minsVal * 60) + secsVal;
+        
+        const hoursEl = document.getElementById("timer-hours");
+        const minsEl = document.getElementById("timer-minutes");
+        const secsEl = document.getElementById("timer-seconds");
+        
+        const interval = setInterval(function() {
+            if (totalSeconds <= 0) {
+                clearInterval(interval);
+                hoursEl.innerText = "00";
+                minsEl.innerText = "00";
+                secsEl.innerText = "00";
+                return;
+            }
+            
+            totalSeconds--;
+            
+            let h = Math.floor(totalSeconds / 3600);
+            let m = Math.floor((totalSeconds % 3600) / 60);
+            let s = totalSeconds % 60;
+            
+            hoursEl.innerText = h < 10 ? "0" + h : h;
+            minsEl.innerText = m < 10 ? "0" + m : m;
+            secsEl.innerText = s < 10 ? "0" + s : s;
+        }, 1000);
+    });
+</script>
+
+{% endblock %}

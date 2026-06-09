@@ -1,0 +1,196 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Zivi | Settings & Support{% endblock %}
+
+{% block content %}
+<section class="section-padding">
+    <div class="container">
+        
+        <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 2.5rem;"><i class="fa-solid fa-cog" style="color: var(--primary-color);"></i> Settings & Support</h1>
+
+        <div class="settings-grid">
+            
+            <!-- Left Side Settings Menu -->
+            <div class="settings-menu">
+                <a href="#general" class="settings-menu-item active" id="menu-general" onclick="switchSettingsPanel('general')">
+                    <i class="fa fa-sliders"></i> General Preferences
+                </a>
+                <a href="#help" class="settings-menu-item" id="menu-help" onclick="switchSettingsPanel('help')">
+                    <i class="fa-regular fa-circle-question"></i> Help & Support
+                </a>
+                <a href="#privacy" class="settings-menu-item" id="menu-privacy" onclick="switchSettingsPanel('privacy')">
+                    <i class="fa fa-shield-halved"></i> Privacy Policy
+                </a>
+                <a href="#terms" class="settings-menu-item" id="menu-terms" onclick="switchSettingsPanel('terms')">
+                    <i class="fa fa-file-contract"></i> Terms & Conditions
+                </a>
+            </div>
+
+            <!-- Right Side Panels -->
+            <div>
+                <!-- Panel 1: General Preferences -->
+                <div class="payment-content active" id="panel-general" style="display: block;">
+                    <div class="form-card" style="margin-bottom: 1.5rem;">
+                        <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--primary-color);">Theme Customization</h2>
+                        
+                        <div class="toggle-switch-label" style="border: 1px solid var(--border-color); padding: 1rem 1.25rem; border-radius: var(--radius-sm); background: var(--bg-secondary);">
+                            <div>
+                                <strong style="display: block; font-size: 0.95rem;">Dark Interface Theme</strong>
+                                <span style="font-size: 0.75rem; color: var(--text-secondary);">Reduce screen glare and save battery life. Works across all pages.</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="settings-theme-toggle">
+                                <span class="slider-switch"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-card" style="margin-bottom: 0;">
+                        <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--primary-color);">Account Shortcuts</h2>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem;">
+                            {% if request.user.is_authenticated %}
+                                <a href="{% url 'profile' %}" class="btn btn-secondary btn-sm" style="flex-direction: column; height: 90px; gap: 0.35rem;">
+                                     <i class="fa fa-user-circle" style="font-size: 1.25rem;"></i> My Profile
+                                </a>
+                                <a href="{% url 'profile' %}#orders" class="btn btn-secondary btn-sm" style="flex-direction: column; height: 90px; gap: 0.35rem;">
+                                     <i class="fa fa-box-open" style="font-size: 1.25rem;"></i> My Orders
+                                </a>
+                                <a href="{% url 'logout' %}" class="btn btn-secondary btn-sm text-danger" style="flex-direction: column; height: 90px; gap: 0.35rem;">
+                                     <i class="fa fa-sign-out-alt" style="font-size: 1.25rem;"></i> Log Out
+                                </a>
+                            {% else %}
+                                <a href="{% url 'login' %}" class="btn btn-secondary btn-sm" style="flex-direction: column; height: 90px; gap: 0.35rem;">
+                                     <i class="fa fa-sign-in-alt" style="font-size: 1.25rem;"></i> Log In
+                                </a>
+                                <a href="{% url 'signup' %}" class="btn btn-secondary btn-sm" style="flex-direction: column; height: 90px; gap: 0.35rem;">
+                                     <i class="fa fa-user-plus" style="font-size: 1.25rem;"></i> Create Account
+                                </a>
+                            {% endif %}
+                            <a href="{% url 'about' %}" class="btn btn-secondary btn-sm" style="flex-direction: column; height: 90px; gap: 0.35rem;">
+                                 <i class="fa fa-info-circle" style="font-size: 1.25rem;"></i> About Us
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 2: Help & Support -->
+                <div class="payment-content" id="panel-help" style="display: none;">
+                    <div class="form-card" style="margin-bottom: 1.5rem;">
+                        <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1rem; color: var(--primary-color);">Contact Us</h2>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+                             Have questions about orders, payments, or shipping? Feel free to contact our support desk:
+                        </p>
+                        <ul style="font-size: 0.9rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                            <li><i class="fa fa-envelope" style="color: var(--primary-color); margin-right: 0.5rem;"></i> Email: <strong>support@zivi.com</strong></li>
+                            <li><i class="fa fa-phone" style="color: var(--primary-color); margin-right: 0.5rem;"></i> Hotline: <strong>+1 (800) ZIVI-SHOP</strong></li>
+                            <li><i class="fa fa-map-marker-alt" style="color: var(--primary-color); margin-right: 0.5rem;"></i> Address: <strong>100 Shopping Blvd, New York, NY</strong></li>
+                        </ul>
+                    </div>
+
+                    <div class="form-card" style="margin-bottom: 0;">
+                        <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--primary-color);">Frequently Asked Questions</h2>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <details style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.75rem 1rem;">
+                                 <summary style="font-weight: 700; cursor: pointer; outline: none;">How long does standard delivery take?</summary>
+                                 <p style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-secondary);">Standard delivery takes 3-5 business days. For orders above $50.00, standard shipping is completely free!</p>
+                            </details>
+                            
+                            <details style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.75rem 1rem;">
+                                 <summary style="font-weight: 700; cursor: pointer; outline: none;">What is Zivi's return policy?</summary>
+                                 <p style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-secondary);">We offer a hassle-free 30-day return policy on all unworn clothing and boxed products in their original packaging.</p>
+                            </details>
+
+                            <details style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.75rem 1rem;">
+                                 <summary style="font-weight: 700; cursor: pointer; outline: none;">Can I send orders as a gift?</summary>
+                                 <p style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-secondary);">Yes! During checkout, simply toggle the "This order is a gift" checkbox to enter custom recipient details and a sweet card message. The invoice will exclude price figures.</p>
+                            </details>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 3: Privacy Policy -->
+                <div class="payment-content" id="panel-privacy" style="display: none;">
+                    <div class="form-card" style="margin-bottom: 0;">
+                        <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--primary-color);">Privacy Policy</h2>
+                        <div style="font-size: 0.9rem; color: var(--text-color); display: flex; flex-direction: column; gap: 1rem; line-height: 1.7;">
+                            <p><strong>Effective Date: June 07, 2026</strong></p>
+                            <p>At Zivi, we value your privacy. We collect personal details (name, shipping address, email, phone) to fulfill your orders, manage accounts, and send relevant deal newsletters.</p>
+                            <p>We do not sell or trade your details to third-party advertisers. All transaction data is securely stored and payments are handled by certified processors (mock UPI/Cards).</p>
+                            <p>You can request account deletion or preferences modification at any time by contacting our support team at support@zivi.com.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 4: Terms & Conditions -->
+                <div class="payment-content" id="panel-terms" style="display: none;">
+                    <div class="form-card" style="margin-bottom: 0;">
+                        <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--primary-color);">Terms and Conditions</h2>
+                        <div style="font-size: 0.9rem; color: var(--text-color); display: flex; flex-direction: column; gap: 1rem; line-height: 1.7;">
+                            <p><strong>Last Updated: June 07, 2026</strong></p>
+                            <p>Welcome to Zivi. By browsing or purchasing items on our platform, you agree to comply with our conditions of use. Please read them carefully.</p>
+                            <p>Products are subjected to stock availability. We reserve the right to correct pricing or catalog errors without prior notice. Placed orders are confirmed once transaction checks succeed.</p>
+                            <p>You agree not to exploit site APIs or templates for scraping or unauthorized automated orders. Breach of terms results in temporary or permanent IP bans.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<!-- Inline script for Settings page panel switching and local theme toggler -->
+<script>
+    function switchSettingsPanel(panelId) {
+        // Toggle menu items active states
+        const menuItems = document.querySelectorAll('.settings-menu-item');
+        menuItems.forEach(item => item.classList.remove('active'));
+        document.getElementById('menu-' + panelId).classList.add('active');
+
+        // Toggle panel displays
+        const panels = document.querySelectorAll('.payment-content');
+        panels.forEach(p => p.style.display = 'none');
+        document.getElementById('panel-' + panelId).style.display = 'block';
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const toggleInput = document.getElementById("settings-theme-toggle");
+        
+        // Sync setting checkbox state with current HTML data-theme
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        toggleInput.checked = (currentTheme === 'dark');
+
+        toggleInput.addEventListener("change", function() {
+             const newTheme = this.checked ? 'dark' : 'light';
+             document.documentElement.setAttribute('data-theme', newTheme);
+             localStorage.setItem('zivi-theme', newTheme);
+             
+             // Sync the other navbar theme switch if exists
+             const navToggle = document.getElementById("theme-toggle");
+             if (navToggle) navToggle.checked = this.checked;
+             
+             // Optional: Persist on backend if user is logged in
+             if (window.CSRF_TOKEN) {
+                  fetch('/settings/', {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/x-www-form-urlencoded',
+                          'X-CSRFToken': CSRF_TOKEN
+                      },
+                      body: 'dark_mode=' + (newTheme === 'dark' ? 'true' : 'false')
+                  });
+             }
+        });
+        
+        // Auto panel selection based on URL hash
+        const hash = window.location.hash.substring(1);
+        if (['general', 'help', 'privacy', 'terms'].includes(hash)) {
+             switchSettingsPanel(hash);
+        }
+    });
+</script>
+{% endblock %}

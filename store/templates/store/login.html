@@ -1,0 +1,70 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Zivi | Sign In{% endblock %}
+
+{% block content %}
+<section class="section-padding flex-center" style="background-color: var(--bg-secondary); min-height: 80vh;">
+    <div class="container" style="max-width: 480px; width: 100%;">
+        
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h1 style="font-size: 2.25rem; font-weight: 800; color: var(--primary-color);"><i class="fa fa-shopping-bag"></i> Zivi<span>.</span></h1>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem;">Sign in to your Zivi account to manage cart, wishlist, and orders.</p>
+        </div>
+
+        <div class="form-card">
+            <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem; text-align: center; text-transform: uppercase;">Sign In</h2>
+            
+            <form action="{% url 'login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}" method="POST">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" name="username" id="username" class="form-control" placeholder="Enter your username" required autofocus>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <label for="password" style="margin-bottom: 0;">Password</label>
+                        <a href="#" style="font-size: 0.75rem; color: var(--primary-color); font-weight: 600;">Forgot password?</a>
+                    </div>
+                    <div style="position: relative; display: flex; align-items: center;">
+                        <input type="password" name="password" id="password" class="form-control" placeholder="Enter your password" required style="padding-right: 40px;">
+                        <i class="fa-solid fa-eye" id="toggle-password-eye" style="position: absolute; right: 15px; cursor: pointer; color: var(--text-secondary); z-index: 10;"></i>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fa fa-sign-in-alt"></i> Sign In</button>
+            </form>
+            
+            <div style="text-align: center; margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.25rem; font-size: 0.9rem;">
+                <span style="color: var(--text-secondary);">New to Zivi?</span> 
+                <a href="{% url 'signup' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}" style="color: var(--primary-color); font-weight: 700;">Create account</a>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const togglePassword = document.getElementById('toggle-password-eye');
+        const passwordInput = document.getElementById('password');
+
+        if (togglePassword && passwordInput) {
+            togglePassword.addEventListener('click', function () {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                if (type === 'password') {
+                    this.classList.remove('fa-eye-slash');
+                    this.classList.add('fa-eye');
+                } else {
+                    this.classList.remove('fa-eye');
+                    this.classList.add('fa-eye-slash');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
