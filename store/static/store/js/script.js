@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const htmlEl = document.documentElement;
     const navThemeToggle = document.getElementById("theme-toggle");
     const settingsThemeToggle = document.getElementById("settings-theme-toggle");
+    const mobileThemeToggle = document.getElementById("theme-toggle-mobile");
 
     // Get current theme from html element (pre-set by inline script in head)
     const currentTheme = htmlEl.getAttribute("data-theme") || "light";
@@ -17,6 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Synchronize switches states
     if (navThemeToggle) navThemeToggle.checked = (currentTheme === "dark");
     if (settingsThemeToggle) settingsThemeToggle.checked = (currentTheme === "dark");
+    if (mobileThemeToggle) mobileThemeToggle.checked = (currentTheme === "dark");
 
     // Add event listeners for toggling theme
     function handleThemeChange(isDark) {
@@ -27,6 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Sync toggle states across DOM
         if (navThemeToggle) navThemeToggle.checked = isDark;
         if (settingsThemeToggle) settingsThemeToggle.checked = isDark;
+        if (mobileThemeToggle) mobileThemeToggle.checked = isDark;
 
         // Persist on backend if user is authenticated and token is available
         if (window.CSRF_TOKEN) {
@@ -49,6 +52,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (settingsThemeToggle) {
         settingsThemeToggle.addEventListener("change", function () {
+            handleThemeChange(this.checked);
+        });
+    }
+
+    if (mobileThemeToggle) {
+        mobileThemeToggle.addEventListener("change", function () {
             handleThemeChange(this.checked);
         });
     }
