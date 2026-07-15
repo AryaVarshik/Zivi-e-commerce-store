@@ -1811,6 +1811,45 @@ input:checked + .slider-switch:before {
     .detail-title {
         font-size: 1.75rem;
     }
+
+    /* Mobile Banner Carousel layout fixes */
+    .hero-slider-container {
+        height: 380px !important;
+        min-height: 380px !important;
+    }
+    .slide {
+        height: 100% !important;
+        padding: 1rem 0 !important;
+    }
+    .slide-content {
+        grid-template-columns: 1fr;
+        gap: 1rem !important;
+        text-align: center;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .slide-text h2 {
+        font-size: 1.8rem !important;
+        margin-bottom: 0.5rem !important;
+        line-height: 1.25;
+    }
+    .slide-text p {
+        font-size: 0.9rem !important;
+        margin-bottom: 1rem !important;
+    }
+    .slider-arrow {
+        display: none !important;
+    }
+    .flash-sale-illustration {
+        display: none !important;
+    }
+    .flex-center img {
+        max-height: 150px !important;
+        margin-top: 0.5rem;
+    }
 }
 
 @media (max-width: 576px) {
@@ -1840,7 +1879,8 @@ input:checked + .slider-switch:before {
         flex: 0 0 190px;
     }
     .slide-featured-products > div {
-        flex: 0 0 200px;
+        flex: 0 0 200px !important;
+        width: 200px !important;
         scroll-snap-align: start;
     }
     .cart-table-container {
