@@ -1,5 +1,7 @@
 # Zivi E-Commerce Web Application
 
+### 🔗 Live Demo: [http://aryavarshikchepyala.pythonanywhere.com/](http://aryavarshikchepyala.pythonanywhere.com/)
+
 Zivi is a premium, fully responsive, full-stack e-commerce web application featuring a modern orange-and-white color palette, dynamic carousels, responsive product grids, user authentication, a wishlist, cart system, multi-step checkout process with gift options, dark/light mode toggle, settings management, and reviews slider. 
 
 The application is built on **Django (Python)** with **SQLite** for the database, utilizing Django templates for rendering, and vanilla CSS/JS for frontend logic and animations.
